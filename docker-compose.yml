@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   facsav-app:
     build:
@@ -13,7 +11,7 @@ services:
       - db
     environment:
       - APP_NAME=Laravel
-      - APP_ENV=local
+      - APP_ENV=production
       - APP_KEY=base64:0EhVe9lS5lJrST2jNV7KMhhKLHhTwQiBuAXbQTvVlds=
       - APP_DEBUG=true
       - APP_URL=http://10.10.10.25:5527
@@ -30,7 +28,7 @@ services:
     volumes:
       - ./storage/app:/var/www/html/storage/app
       - ./storage/logs:/var/www/html/storage/logs
-
+ 
   db:
     image: mysql:8.0
     container_name: facsav_mysql
@@ -40,6 +38,6 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     volumes:
       - db_data:/var/lib/mysql
-
+ 
 volumes:
   db_data:
