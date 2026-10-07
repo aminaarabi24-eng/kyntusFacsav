@@ -92,7 +92,7 @@ class FactureController extends Controller
             ? $this->readFirstSheet($request->file('sav_mc_file'))
             : [];
 
-        $savMap = [];
+                $savMap = [];
 
         if (!empty($savRows)) {
 
@@ -102,15 +102,14 @@ class FactureController extends Controller
             );
 
             $colSavIdRdv = array_search(
-                'Étiquettes de lignes',
+                'Intervention',
                 $savHeader,
                 true
             );
 
             if ($colSavIdRdv !== false) {
 
-                $colSavValue = $colSavIdRdv + 1;
-
+                // SAV MC = nombre de fois où l'EPS apparaît dans ce fichier
                 foreach (
                     array_slice($savRows, 1) as $savRow
                 ) {
@@ -123,22 +122,10 @@ class FactureController extends Controller
                         continue;
                     }
 
-                    if (
-                        !array_key_exists(
-                            $colSavValue,
-                            $savRow
-                        ) ||
-                        $savRow[$colSavValue] === null ||
-                        trim((string) $savRow[$colSavValue]) === ''
-                    ) {
-                        $savMap[$id] = '#N/A';
-                    } else {
-                        $savMap[$id] = $savRow[$colSavValue];
-                    }
+                    $savMap[$id] = ($savMap[$id] ?? 0) + 1;
                 }
             }
         }
-
         // =========================================================
         // 4. LECTURE DU 3ÈME FICHIER (PBO)
         // =========================================================
@@ -471,7 +458,8 @@ class FactureController extends Controller
             ) {
                 $row[$colInstallation] = 68;
 
-              
+         
+                
             }
         }
         unset($row);
