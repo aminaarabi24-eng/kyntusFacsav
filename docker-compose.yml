@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  facsav-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facsav_production
+    restart: unless-stopped
+    ports:
+      # Mapping du port 5527 de l'hôte vers le port 80 du container
+      - "5527:80"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://10.10.10.25:5527
+      - DB_CONNECTION=sqlite
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
+      - QUEUE_CONNECTION=sync
+    volumes:
+      # Persistance des fichiers uploadés et des logs
+      - ./storage/app:/var/www/html/storage/app
+      - ./storage/logs:/var/www/html/storage/logs
+      # Persistance de la base de données SQLite
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
