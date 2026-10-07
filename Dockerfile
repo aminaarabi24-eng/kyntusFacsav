@@ -66,7 +66,6 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev
 # ==========================================
 # SCRIPT D'INITIALISATION AUTOMATIQUE
 # ==========================================
-# Hna derna astuce wa3ra: Laravel howa li ghadi y-testi wach MySQL wajda wla la.
 RUN echo '#!/bin/bash\n\
 echo "🔧 Fixation des permissions..."\n\
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
@@ -93,4 +92,4 @@ RUN chmod +x /usr/local/bin/start.sh
 EXPOSE 80
  
 # Lancer le script au démarrage
-CMD ["/usr/local/bin/start.sh"]
+CMD ["/usr/local/bin/start.sh"] 

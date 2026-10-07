@@ -20,7 +20,7 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=facture-sav
       - DB_USERNAME=root
-      - DB_PASSWORD=
+      - DB_PASSWORD=secretpassword
       - SESSION_DRIVER=database
       - SESSION_LIFETIME=120
       - CACHE_STORE=database
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: facture-sav
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: secretpassword
     volumes:
       - db_data:/var/lib/mysql
  
