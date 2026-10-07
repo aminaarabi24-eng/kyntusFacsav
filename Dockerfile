@@ -11,7 +11,7 @@ COPY package.json package-lock.json* vite.config.js ./
 # Installer les dépendances Node
 RUN npm install
 
-# Copier le reste des fichiers nécessaires pour le build (Tailwind a besoin des vues)
+# Copier le reste des fichiers nécessaires pour le build
 COPY resources/ resources/
 COPY app/ app/
 COPY public/ public/
@@ -27,7 +27,7 @@ FROM php:8.2-apache
 # Définir le dossier de travail
 WORKDIR /var/www/html
 
-# Installer les dépendances système et les extensions PHP nécessaires (Excel, SQLite, etc.)
+# Installer les dépendances système et les extensions PHP nécessaires
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -39,16 +39,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     libonig-dev \
     libxml2-dev \
-    sqlite3 \
-    libsqlite3-dev \
+    default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Activer le module Apache mod_rewrite
 RUN a2enmod rewrite
 
 # Configurer le DocumentRoot d'Apache pour pointer vers le dossier public de Laravel
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
@@ -64,22 +63,13 @@ COPY --from=frontend-builder /app/public/build public/build
 # Installer les dépendances PHP (sans les dev dependencies pour la prod)
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
-# Créer le fichier SQLite s'il n'existe pas
-RUN mkdir -p database && touch database/database.sqlite
-
 # Configurer les permissions strictes pour Laravel et Apache
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/database
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Exposer le port 80 (qui sera mappé sur le 5527 via docker-compose)
+# Exposer le port 80
 EXPOSE 80
 
 # Commande de démarrage : Exécuter les migrations, optimiser le cache, puis lancer Apache
-CMD php artisan migrate --force && \
-    php artisan optimize:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    apache2-foreground
+CMD ["sh", "-c", "php artisan migrate --force && php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && apache2-foreground"]
